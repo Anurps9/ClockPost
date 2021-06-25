@@ -11,7 +11,7 @@ app.post('/mailScreen', (req, res) => {
 	let sender = req.body.senderEmail;
 	let receiver = req.body.receiverEmail;
 	let text = req.body.text;
-	mail.send(sender, '#include', receiver, 'nothing', text);
+	mail.send(sender, '', receiver, 'nothing', text);
 	res.redirect('/mailScreen');
 })
 
