@@ -3,6 +3,7 @@ const cron = require('node-cron');
 
 function recurMail(cronStringStart, cronStringInterval, mailInfo){
 	console.log(cronStringInterval, cronStringStart);
+	scheduleMail(cronStringStart, mailInfo);
 	var recurTask = cron.schedule(cronStringInterval, () => {
 		sendMail(mailInfo);
 	},{
@@ -26,9 +27,7 @@ function scheduleMail(cronString, mailInfo){
 	});
 }
 
-
 function sendMail(mailInfo){
-	console.log('hi');
 	let transporter = nodemailer.createTransport({
 		service: 'Gmail',
 		auth: {
