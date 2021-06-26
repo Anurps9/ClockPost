@@ -1,0 +1,29 @@
+.body-background {
+  height: 100vh;
+  background-image: linear-gradient(
+    to right top,
+    #ea2c62,
+    #ff9a8c,
+    #fad5ad,
+    #f5ff92
+  );
+}
+
+.card {
+  width: 400px;
+  border: none;
+}
+
+.form-control {
+  height: 45px;
+  border-radius: 10px;
+}
+
+.form-control:focus {
+  box-shadow: none;
+}
+
+.btn-signup {
+  height: 50px;
+  border-radius: 10px;
+}
