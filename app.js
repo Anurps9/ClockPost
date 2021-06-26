@@ -117,7 +117,6 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
-
 //routes
 
 app.get('/auth/google',
@@ -197,9 +196,7 @@ app.post('/mailScreen', (req, res) => {
 	}
 
 	console.log(mailInfo);
-
-	mailInfo.to.push(req.body.cc);
-
+	
 	var user = req.session.passport.user;
 	console.log(user._id);
 	User.findOne({_id: user._id}, function(err, user) {
