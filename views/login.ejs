@@ -1,0 +1,10 @@
+<%- include('header') -%>
+
+<form action="/login" method="post">
+	<input name="username" type="email" placeholder="email">
+	<input name="password" type="password" placeholder="pass">
+	<button class="btn btn-primary" type="submit">Submit</button>
+	<a href="/auth/google">Sign In with Google</a>
+</form>
+
+<%- include('footer') -%>

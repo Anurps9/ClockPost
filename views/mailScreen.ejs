@@ -1,0 +1,18 @@
+<%- include('header') -%>
+
+<form action="/mailScreen" method="post">
+	<input name="senderEmail" id="sender-id" placeholder="From:" type="email">
+	<input name="receiverEmail" id="recipient-id" placeholder="To:" type="email">
+	<input name="text" id="email-text" placeholder="Enter your message..." type="text">
+	<select name="interval" id="email-interval">
+		<option value="once">Once</option>
+		<option value="every-second">Every second</option>
+		<option value="every-minute">Every minute</option>
+		<option value="every-day">Every day</option>
+		<option value="every-week">Every week</option>
+	</select>
+	<input name="scheduleStartTime" type="datetime-local" id="schedule-start-time">
+	<button type="submit">Send</button>
+</form>
+
+<%- include('footer') -%>
