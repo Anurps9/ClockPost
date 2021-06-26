@@ -83,7 +83,7 @@ passport.use('local-signup', new LocalStrategy(
 			password: password,
 		})	
 
-		User.findOne({username: username}, function(err){
+		User.findOne({username: username}, function(err, user){
 			if(err) return done(err);
 			if(user){
 				return done(null, false, req.flash('signupMessage', 'Email Already Taken!'))
@@ -157,7 +157,6 @@ app.post('/signup',
 	}),	
 	(req, res) => {
 		req.session.loggedIn = true;
-		console.log(req.session);
 		res.redirect('/');
 	}
 )
@@ -188,15 +187,15 @@ app.post('/mailScreen', (req, res) => {
 	//'YYYY MM DD HH mm ss SSS'
 	var dateTo = new Date(req.body.scheduleStartTime);
 	var mailInfo = {
-		from: req.body.senderEmail,
+		from: req.session.passport.user.username,
 		to: req.body.receiverEmail,
 		text: req.body.text,
-		pass: '#include',
+		pass: req.session.passport.user.password,
 		subject: '',
 	}
 
 	console.log(mailInfo);
-	
+
 	var user = req.session.passport.user;
 	console.log(user._id);
 	User.findOne({_id: user._id}, function(err, user) {

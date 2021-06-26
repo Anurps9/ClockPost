@@ -1,12 +1,12 @@
 <%- include('header') -%>
 
 <form action="/mailScreen" id="mail-form" method="post">
-	<input name="senderEmail" id="sender-id" placeholder="From:" type="email">
 	
 	<ul id="rec-list">
 		<input class="recieverList" name="receiverEmail" placeholder="To:" type="email">	
 	</ul>
 	
+	<input name="subject" id="sender-id" placeholder="Sub:" type="text">
 	<input type="button" name="" id="add-recepients" value="+"></input>
 	<input name="text" id="email-text" placeholder="Enter your message..." type="text">
 	<select name="interval" id="email-interval">
@@ -37,7 +37,6 @@
 		e.preventDefault();
 		createEmailInput();
 	}
-
 
 </script>	
 
