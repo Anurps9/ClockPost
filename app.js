@@ -42,6 +42,27 @@ passport.deserializeUser(function(user, done){
 	done(null, user);
 });
 
+//database
+const uri = process.env.db_url;
+mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log('Connected to database');
+});
+const UserSchema = new mongoose.Schema({
+	firstname: String, 
+	lastname: String,
+	username: String,
+	googleId: String,
+	password: String,
+	scheduledTask: [],
+	history: [],
+});
+
+const User = mongoose.model('User', UserSchema);
+
 passport.use(new GoogleStrategy({
     clientID: process.env.clientID,
     clientSecret: process.env.clientSecret,
@@ -65,7 +86,6 @@ passport.use(new GoogleStrategy({
 ))
 
 passport.use('local-login', new LocalStrategy(
-
   function(username, password, done) {
     User.findOne({ username: username }, function(err, user) {
       if (err) { return done(err); }
@@ -73,7 +93,6 @@ passport.use('local-login', new LocalStrategy(
         return done(null, false, { message: 'Incorrect username.' });
       }
       bcrypt.compare(password, user.password, function(err, result){
-      	console.log(result);
 	      if (!result) {
 	        return done(null, false, { message: 'Incorrect password.' });
 	      }
@@ -84,10 +103,10 @@ passport.use('local-login', new LocalStrategy(
 
 ))
 
-passport.use('local-signup', new LocalStrategy(
-
-	function(username, password, done){
-
+passport.use('local-signup', new LocalStrategy({
+		passReqToCallback: true,
+	},
+	function(req, username, password, done){
 		User.findOne({username: username}, function(err, user){
 			if(err) return done(err);
 			if(user){
@@ -97,42 +116,22 @@ passport.use('local-signup', new LocalStrategy(
 				var newUser = new User({
 					username: username,
 					password: hash,
+					firstname: req.body.firstname,
+					lastname: req.body.lastname,
 				})	
 				newUser.save(function(err, newUser){
-					if(err) {return done(err);}
+					if(err) {
+						return done(err);
+					}
 					return done(null, newUser);
 				})
 			}) 
 		})		
-
 	}
 
 ))
 
-//database
-const uri = 'mongodb+srv://admin-anurag:test123@cluster0.mp2lc.mongodb.net/Users?retryWrites=true&w=majority'
-mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  console.log('Connected to database');
-});
-const UserSchema = new mongoose.Schema({
-	firstname: String, 
-	lastname: String,
-	username: String,
-	googleId: String,
-	password: String,
-	outbox: [],
-	scheduledTask: [],
-	history: [],
-});
-
-const User = mongoose.model('User', UserSchema);
-
 //routes
-
 app.get('/auth/google',
   passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] })
 );
@@ -180,7 +179,7 @@ app.get('/signup', (req, res) => {
 app.post('/signup', 
 	passport.authenticate('local-signup', 
 	{
-		failureRedirect: '/signup',
+		failureRedirect: '/error',
 		failureFlash: true
 	}),	
 	(req, res) => {
@@ -196,7 +195,7 @@ app.get('/login', (req, res) => {
 app.post('/login',
   passport.authenticate('local-login', 
   { 
-  	failureRedirect: '/login',
+  	failureRedirect: '/error',
    	failureFlash: true 
   }),
   (req, res) => {
@@ -224,14 +223,32 @@ app.post('/mailScreen', (req, res) => {
 			}
 
 			var dateTo = new Date(req.body.scheduleStartTime);
-			
+			var dateEnd = new Date(dateTo);
+
+			var timeScale = req.body.timenumber;
+			var timeUnit = req.body.timeunit;
+
+			console.log(timeScale, timeUnit);
+
+			if(timeUnit.localeCompare('minute')==0){
+				dateEnd.setSeconds(dateEnd.getSeconds()+timeScale);
+			}else if(timeUnit.localeCompare('day')===0){
+				dateEnd.setDate(dateEnd.getDate()+timeScale);
+			}else if(timeUnit.localeCompare('month')==0){
+				dateEnd.setMonth(dateEnd.getMonth()+timeScale);
+			}else if(timeUnit.localeCompare('year')==0){
+				dateEnd.setYear(dateEnd.getYear()+timeScale);
+			}
+
 			var mailInfo = {
 				from: req.body.senderEmail,
 				to: req.body.receiverEmail,
+				cc: req.body.ccEmail,
 				text: req.body.text,
 				pass: req.body.senderPass,
 				subject: req.body.subject,
 				scheduledTime: dateTo,
+				endsAt: dateEnd, 
 			}
 
 			var task = {
@@ -240,7 +257,6 @@ app.post('/mailScreen', (req, res) => {
 			}
 
 			var interval = req.body.interval;
-			var cronStringStart=date.format(dateTo, 'ss mm HH DD MM *');	
 			if(interval.localeCompare('once')==0){
 				//Send mail once
 				task.mailInfo.recurrence = 'Once';
@@ -250,7 +266,7 @@ app.post('/mailScreen', (req, res) => {
 				var cronStringInterval; 
 				if(interval.localeCompare('every-minute')==0){
 					task.mailInfo.recurrence = 'Every minute';
-					cronStringInterval = '* * * * *';
+					cronStringInterval = '* * * * * *';
 				}else if(interval.localeCompare('every-week')==0){
 					task.mailInfo.recurrence = 'Every week';
 					cronStringInterval = '* * * * 1';
@@ -261,10 +277,10 @@ app.post('/mailScreen', (req, res) => {
 					task.mailInfo.recurrence = 'Every year';
 					cronStringInterval = '* * * 1 *';
 				}
-
-				mail.recur(dateTo, cronStringInterval, mailInfo);					
+				mail.recur(dateTo, cronStringInterval, dateEnd, mailInfo).then(() => {
+								task.mailInfo.pass = '#';
+				});					
 			}
-			task.mailInfo.pass = '#';
 			user.scheduledTask.push(task);
 			user.save();
 
@@ -299,15 +315,6 @@ app.get('/history', function(req, res) {
 	}
 })
 
-/*
-const UserSchema = new mongoose.Schema({
-	username: String,
-	googleId: String,
-	password: String,
-	outbox: [],
-	scheduledTask: [],
-});
-*/
 app.get("/delete/:task_id", function(req, res){
 	User.findOne({_id: req.session.passport.user._id}, function(err, user) {
 		var index = user.scheduledTask.findIndex((task) => {
@@ -329,19 +336,6 @@ app.get("/delete/history/:task_id", function(req, res){
 		user.save();
 	}).then(() => {
 		res.redirect('/history');
-	});
-})
-
-app.get('/askForName', function(req, res){
-	res.render('askForName');
-})
-
-app.post('/askForName', function(req, res){
-	User.findOne({_id: req.session.passport.user._id}, function(err, user) {
-		user.firstname=req.body.name;
-		user.save();
-	}).then(() => {
-		res.redirect('/');
 	});
 })
 

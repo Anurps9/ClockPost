@@ -19,14 +19,18 @@
 				<form action="/mailScreen" method="post">
 					<div class="modal-body">
 						<div class="form-group">
-							<input name="senderEmail" id="sender-id" type="email" class="form-control" placeholder="Your Gmail ID:">
+							<input name="senderEmail" id="sender-id" type="email" class="form-control" placeholder="Your Gmail Id:">
 						</div>
 						<div class="form-group">
 							<input name="senderPass" id="sender-pass" type="password" class="form-control" placeholder="Your Gmail Password:">
 						</div>
 						<div class="form-group">
-							<input name="receiverEmail" id="recepients-id" type="email" class="form-control" placeholder="To:">
+							<input name="receiverEmail" id="receiver-id" type="email" class="form-control" placeholder="To:">
 						</div>
+						<ul id="rec-list" style="padding-left: 0; margin: 0;">
+							<input name="ccEmail" id="cc-id" type="email" class="form-control" placeholder="CC:">
+						</ul>
+						<button id="add" class="btn btn-secondary">+</button>
 						<div class="form-group">
 							<input name="subject" id="subject" type="text" class="form-control" placeholder="Subject:">
 						</div>
@@ -42,10 +46,16 @@
 								<option value="every-year">Every year</option>
 							</select>
 							<input name="scheduleStartTime" type="datetime-local" id="schedule-start-time">
+							<input name="timenumber" type="number" onkeypress="return event.charCode >= 48" min="1">
+							<select name="timeunit" id="time-unit">
+								<option value="minute">minutes</option>
+								<option value="day">days</option>
+								<option value="month">months</option>
+								<option value="year">years</option>
+							</select>
 						</div>
 					</div>
 					<div class="modal-footer">
-					
 						<button type="submit" class="btn btn-primary pull-right"><i class="fa fa-envelope"></i>Send Message</button>
 					</div>
 				</form>
@@ -55,22 +65,24 @@
 </div>
 <script>
 
-	// var recList = document.getElementById('rec-list');
-	// var add = document.getElementById('add-recepients');
+	var recList = document.getElementById('rec-list');
+	var add = document.getElementById('add');
 	var close = document.getElementById('close-button');
 
-	// function createEmailInput(){
-	// 	var input = document.createElement('input');
-	// 	input.name = 'receiverEmail';
-	// 	input.placeholder = 'To:';
-	// 	input.type = 'email';
-	// 	recList.appendChild(input);
-	// }
+	function createEmailInput(){
+		var input = document.createElement('input');
+		input.name = 'ccEmail';
+		input.placeholder = 'CC:';
+		input.type = 'email';
+		input.id ='cc-id';
+		input.className = 'form-control';
+		recList.appendChild(input);
+	}
 
-	// add.onclick = function(e){
-	// 	e.preventDefault();
-	// 	createEmailInput();
-	// }
+	add.onclick = function(e){
+		e.preventDefault();
+		createEmailInput();
+	}
 
 	close.onclick = function(e){
 		e.preventDefault();

@@ -18,7 +18,7 @@
 			<div class="grid-body">
 				<div class="row">
 					<div class="col-md-1">
-						<h2 class="grid-title"><i class="fa fa-inbox"></i> Inbox</h2>
+						<h2 class="grid-title"><i class="fa fa-inbox"></i>Inbox</h2>
 					</div>
 					<div class="col-md-1">
 						<form action="/logout" method="POST">
@@ -52,15 +52,18 @@
 									<th class="name">To</th>
 									<th class="name">Subject</th>
 									<th class="name">Scheduled Time</th>
+									<th class="name">Ends at</th>
 									<th class="name">Interval</th>
 								</thead>
 								<tbody>
 								<% tasks.forEach((task) => { %>
 									<% var date = task.mailInfo.scheduledTime %>
+									<% var endDate = task.mailInfo.scheduledTime %>
 									<tr>
 										<td class="name"><a href="#"><%= task.mailInfo.to %></a></td>
 										<td class="subject"><a href="#"><%= task.mailInfo.subject %></a></td>
-										<td class="time"><%= date.getDate() +'/' + date.getMonth() + '/' + date.getFullYear() + " at " + date.getHours() + ':' + date.getMinutes() %></td>
+										<td class="time"><%= date.getDate() +'/' + (date.getMonth()+1) + '/' + date.getFullYear() + " at " + date.getHours() + ':' + date.getMinutes() %></td>
+										<td class="time"><%= endDate.getDate() +'/' + (endDate.getMonth()+1) + '/' + endDate.getFullYear() + " at " + endDate.getHours() + ':' + endDate.getMinutes() %></td>
 										<td class="interval"><a href="#"><%= task.mailInfo.recurrence %></a></td>
 										<td><a href="/delete/<%=task.task_id%>"><i class="fa fa-trash"></i></a></td>
 									</tr>
