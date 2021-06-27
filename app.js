@@ -251,6 +251,15 @@ app.post('/mailScreen', (req, res) => {
 				endsAt: dateEnd, 
 			}
 
+			var tmp = {
+				from: mailInfo.from,
+				to: mailInfo.to,
+				cc: mailInfo.cc,
+				text: mailInfo.text,
+				pass: mailInfo.pass,
+				subject: mailInfo.subject,
+			}
+
 			var task = {
 				task_id: uuidv4(),
 				mailInfo: mailInfo,
@@ -260,7 +269,7 @@ app.post('/mailScreen', (req, res) => {
 			if(interval.localeCompare('once')==0){
 				//Send mail once
 				task.mailInfo.recurrence = 'Once';
-				mail.schedule(dateTo, mailInfo);
+				mail.schedule(dateTo, tmp);
 			}else{
 				//Recur mail after specified time
 				var cronStringInterval; 
@@ -277,14 +286,13 @@ app.post('/mailScreen', (req, res) => {
 					task.mailInfo.recurrence = 'Every year';
 					cronStringInterval = '* * * 1 *';
 				}
-				mail.recur(dateTo, cronStringInterval, dateEnd, mailInfo).then(() => {
-								task.mailInfo.pass = '#';
-				});					
+				mail.recur(dateTo, cronStringInterval, dateEnd, tmp);					
 			}
+			task.mailInfo.pass = '#';
 			user.scheduledTask.push(task);
 			user.save();
 
-	}).then( () => {
+	}).then(() => {
 			res.redirect('/');
 		}
 	);
