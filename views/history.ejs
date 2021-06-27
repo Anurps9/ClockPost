@@ -17,9 +17,18 @@
 		<div class="grid email">
 			<div class="grid-body">
 				<div class="row">
+					<div class="col-md-1">
+						<h2 class="grid-title"><i class="fa fa-inbox"></i> Inbox</h2>
+					</div>
+					<div class="col-md-1">
+						<form action="/logout" method="POST">
+							<button class="btn btn-secondary" type="submit">Logout</button>
+						</form>
+					</div>
+				</div>
+				<div class="row">
 					<!-- BEGIN INBOX MENU -->
 					<div class="col-md-3">
-						<h2 class="grid-title"><i class="fa fa-inbox"></i> Inbox</h2>
 						<h6 class="grid-title">Signed in as: <%= username %></h6>
                         <a class="btn btn-block btn-primary"  href="/mailScreen"><i class="fa fa-pencil"></i>&nbsp;&nbsp;NEW MESSAGE</a>
 						<hr>
