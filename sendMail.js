@@ -1,8 +1,7 @@
 const nodemailer = require('nodemailer');
 const cron = require('node-cron');
 
-function recurMail(cronStringStart, cronStringInterval, mailInfo){
-	console.log(cronStringInterval, cronStringStart);
+function recurMail(cronStringStart, cronStringInterval, cronStringEnd, mailInfo){
 	scheduleMail(cronStringStart, mailInfo);
 	var recurTask = cron.schedule(cronStringInterval, () => {
 		sendMail(mailInfo);
@@ -16,18 +15,28 @@ function recurMail(cronStringStart, cronStringInterval, mailInfo){
 		scheduled: true,
 		timezone: 'Asia/Colombo',
 	})
+
+	cron.schedule(cronStringEnd, () => {
+		recurTask.stop();
+	},{
+		scheduled: true,
+		timezone: 'Asia/Colombo',
+	})
+	return recurTask;
 }
 
 function scheduleMail(cronString, mailInfo){
-	cron.schedule(cronString, () => {
+	var task = cron.schedule(cronString, () => {
 		sendMail(mailInfo);
 	},{
 		scheduled: true,
 		timezone: 'Asia/Colombo',
 	});
+	return task;
 }
 
 function sendMail(mailInfo){
+	// console.log('hi');
 	let transporter = nodemailer.createTransport({
 		service: 'Gmail',
 		auth: {

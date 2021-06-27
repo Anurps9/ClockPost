@@ -2,11 +2,11 @@
 	<h1>Welcome!</h1>
 	<a href="/mailScreen">Write a mail</a>
 	<div>
-		<%mails.forEach((mail) => { %>
-			<div>to: <%= mail.to %></div>
-			<div>from: <%= mail.from %></div>
-			<div>sub: <%= mail.subject %></div>
-			<div>text: <%= mail.text %></div>
+		<%tasks.forEach((task) => { %>
+			<div>to: <%= task.mailInfo.to %></div>
+			<div>from: <%= task.mailInfo.from %></div>
+			<div>sub: <%= task.mailInfo.subject %></div>
+			<div>text: <%= task.mailInfo.text %></div>
 		<%})%>
 	</div>
 <%- include('footer') -%>

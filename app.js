@@ -12,6 +12,12 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const flash = require('connect-flash');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
+if(process.env.NODE_ENV !== 'production'){
+	require('dotenv').config();
+}
 
 app.use(express.static('./public'));
 app.use(bodyParser.urlencoded({extended: false}));
@@ -36,8 +42,8 @@ passport.deserializeUser(function(user, done){
 });
 
 passport.use(new GoogleStrategy({
-    clientID: "611038383097-3884dt73hdju0akd4794m2ktfsqmt8gl.apps.googleusercontent.com",
-    clientSecret: "6tDK4MSPyX0ryfbXRNqrQNCG",
+    clientID: process.env.clientID,
+    clientSecret: process.env.clientSecret,
     callbackURL: "/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
@@ -60,6 +66,7 @@ passport.use(new GoogleStrategy({
 ))
 
 passport.use('local-login', new LocalStrategy(
+
   function(username, password, done) {
     User.findOne({ username: username }, function(err, user) {
       if (err) { return done(err); }
@@ -67,32 +74,38 @@ passport.use('local-login', new LocalStrategy(
 				console.log('in');
         return done(null, false, { message: 'Incorrect username.' });
       }
-      if (user.password!=password) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
+      bcrypt.compare(password, user.password, function(err, result){
+      	console.log(result);
+	      if (!result) {
+	        return done(null, false, { message: 'Incorrect password.' });
+	      }
+	      return done(null, user);
+      })
     });
   }
+
 ))
 
 passport.use('local-signup', new LocalStrategy(
 
 	function(username, password, done){
-		var newUser = new User({
-			username: username,
-			password: password,
-		})	
 
 		User.findOne({username: username}, function(err, user){
 			if(err) return done(err);
 			if(user){
 				return done(null, false, req.flash('signupMessage', 'Email Already Taken!'))
 			}
-			newUser.save(function(err, newUser){
-				if(err) {return done(err);}
-				console.log('saved');
-				return done(null, newUser);
-			})
+			bcrypt.hash(password, saltRounds, (err, hash) => {
+				var newUser = new User({
+					username: username,
+					password: hash,
+				})	
+				newUser.save(function(err, newUser){
+					if(err) {return done(err);}
+					console.log('saved');
+					return done(null, newUser);
+				})
+			}) 
 		})		
 
 	}
@@ -113,6 +126,8 @@ const UserSchema = new mongoose.Schema({
 	googleId: String,
 	password: String,
 	outbox: [],
+	recuringTask: [],
+	scheduledTask: [],
 });
 
 const User = mongoose.model('User', UserSchema);
@@ -133,7 +148,7 @@ app.get('/auth/google/callback',
 app.get('/', (req, res) => {
 	if(req.session.loggedIn){
 		User.findOne({_id: req.session.passport.user._id}, function(err, user) {
-			res.render('index', {mails: user.outbox});
+			res.render('index', {tasks: user.scheduledTask});
 		});
 	}else{
 		res.redirect('/login');
@@ -173,13 +188,16 @@ app.post('/login',
   }),
   (req, res) => {
   	req.session.loggedIn = true;
-		console.log(req.session);
   	res.redirect('/');
   }
 );
 
 app.get('/mailScreen', (req, res) => {
-	res.render('mailScreen');
+	if(req.session.loggedIn == true){
+		res.render('mailScreen');
+	}else{
+		res.redirect('/login');
+	}
 })
 
 app.post('/mailScreen', (req, res) => {
@@ -194,8 +212,6 @@ app.post('/mailScreen', (req, res) => {
 		subject: '',
 	}
 
-	console.log(mailInfo);
-
 	var user = req.session.passport.user;
 	console.log(user._id);
 	User.findOne({_id: user._id}, function(err, user) {
@@ -205,27 +221,51 @@ app.post('/mailScreen', (req, res) => {
 
 	var interval = req.body.interval;
 	var cronStringStart=date.format(dateTo, 'ss mm HH DD MM *');
+	console.log(dateTo);
 	
+
 	if(interval.localeCompare('once')==0){
 		//Send mail once
-		mail.schedule(cronStringStart, mailInfo);
+		User.findOne({_id: user._id}, function(err, user) {
+			if(!user){
+				res.redirect('/signup');
+			}else{
+				var task = {
+					mailInfo: mailInfo,
+					task: mail.schedule(cronStringStart, mailInfo),
+				}
+				user.scheduledTask.push(task);
+				user.save();
+			}
+		});
 	}else{
 		//Recur mail after specified time
-
-		var cronStringInterval;
+		var cronStringInterval; 
+		dateTo.setTime(dateTo.getTime() + (30*60*1000));
+		
+		var cronStringEnd = date.format(dateTo, 'ss mm HH DD MM *');
 
 		if(interval.localeCompare('every-minute')==0){
 			cronStringInterval = '* * * * *';
-		}else if(interval.localeCompare('every-second')==0){
-			cronStringInterval = '* * * * * *';
-		}else if(interval.localeCompare('every-hour')==0){
-			cronStringInterval = '* 1 * * *';
-		}else if(interval.localeCompare('every-day')==0){
-			cronStringInterval = '* * 1 * *';
+		}else if(interval.localeCompare('every-week')==0){
+			cronStringInterval = '* * * * 1';
 		}else if(interval.localeCompare('every-month')==0){
+			cronStringInterval = '* * 1 * *';
+		}else if(interval.localeCompare('every-year')==0){
 			cronStringInterval = '* * * 1 *';
 		}
-		mail.recur(cronStringStart, cronStringInterval, mailInfo);
+		User.findOne({_id: user._id}, function(err, user) {
+			if(!user){
+				res.redirect('/signup');
+			}else{
+				var task = {
+					mailInfo: mailInfo,
+					task: mail.recur(cronStringStart, cronStringInterval, cronStringEnd, mailInfo),
+				}
+				user.recurTask.push(task);
+				user.save();
+			}
+		});
 	}
 
 	res.redirect('/mailScreen');
@@ -233,7 +273,7 @@ app.post('/mailScreen', (req, res) => {
 
 let port = process.env.PORT || 3000;
 app.listen(port, () => {
-	console.log('server start at port 3000');
+	console.log('server start at port '+port);
 })
 
 
