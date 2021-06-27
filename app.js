@@ -291,6 +291,23 @@ app.post('/mailScreen', (req, res) => {
 
 })
 
+app.get("/read/:task_id", (req, res) => {
+	User.findOne({_id: req.session.passport.user._id}, function(err, user) {
+		user.scheduledTask.forEach((task) => {
+			if(task.task_id == 
+				req.params.task_id){
+				res.render('read', {mail: task.mailInfo.text});
+			}
+		})
+		user.history.forEach((task) => {
+			if(task.task_id == 
+				req.params.task_id){
+				res.render('read', {mail: task.mailInfo.text});
+			}
+		})
+	})
+})
+
 app.get('/history', function(req, res) {
 	if(req.session.loggedIn){
 		User.findOne({_id: req.session.passport.user._id}, function(err, user) {
@@ -301,7 +318,7 @@ app.get('/history', function(req, res) {
 			var tasks = [];
 			user.scheduledTask.forEach((task) => {
 				if(task.mailInfo.scheduledTime.getTime() > curr.getTime()){
-					tasks.push(task)
+					tasks.push(task);
 				}else{
 					user.history.push(task);
 				}
