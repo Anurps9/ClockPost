@@ -21,7 +21,7 @@
 3. Make a .env file in the root directory and put the following variables in it:
 	i) clientID: Obtained from Google Developer console
 	ii) clientSecret: Also obtained from Google Developer console
-	iii) sesseion_secret: A randmo string to be use as session secret for express-session
+	iii) sesseion_secret: A random string to be use as session secret for express-session
 	iv) db_url: A MongoDB connection URL
 4. Run the app using command 'node app.js' in the root directory
 5. In case of deployment, make a Procfile with content: 'web: node app.js' (without inverted commas).
