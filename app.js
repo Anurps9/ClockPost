@@ -14,6 +14,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const {v4: uuidv4} = require('uuid');
 
 if(process.env.NODE_ENV !== 'production'){
 	require('dotenv').config();
@@ -23,7 +24,7 @@ app.use(express.static('./public'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(session({
-	secret: "This is the secret",
+	secret: process.env.session_secret,
 	resave: true,
 	saveUninitialized: true,
 }));
@@ -54,11 +55,9 @@ passport.use(new GoogleStrategy({
        	 if(!user){
        	 	const newUser=new User({
        	 		googleId: profile.id,
-       	 		outbox: [],
+       	 		scheduledTask: [],
        	 	});
-       	 	newUser.save((err, newUser) => {
-       	 		console.log(newUser.outbox);
-       	 	})
+       	 	newUser.save();
        	 }
          return done(null, user);
        });
@@ -71,7 +70,6 @@ passport.use('local-login', new LocalStrategy(
     User.findOne({ username: username }, function(err, user) {
       if (err) { return done(err); }
       if (!user) {
-				console.log('in');
         return done(null, false, { message: 'Incorrect username.' });
       }
       bcrypt.compare(password, user.password, function(err, result){
@@ -102,7 +100,6 @@ passport.use('local-signup', new LocalStrategy(
 				})	
 				newUser.save(function(err, newUser){
 					if(err) {return done(err);}
-					console.log('saved');
 					return done(null, newUser);
 				})
 			}) 
@@ -122,12 +119,14 @@ db.once('open', function() {
   console.log('Connected to database');
 });
 const UserSchema = new mongoose.Schema({
+	firstname: String, 
+	lastname: String,
 	username: String,
 	googleId: String,
 	password: String,
 	outbox: [],
-	recuringTask: [],
 	scheduledTask: [],
+	history: [],
 });
 
 const User = mongoose.model('User', UserSchema);
@@ -142,13 +141,27 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
   	req.session.loggedIn = true;
-    res.redirect('/');
+  	res.redirect('/');
 });
 
 app.get('/', (req, res) => {
 	if(req.session.loggedIn){
 		User.findOne({_id: req.session.passport.user._id}, function(err, user) {
-			res.render('index', {tasks: user.scheduledTask});
+			if(!user){
+				res.render('/');
+			}
+			var curr = new Date();
+			var tasks = [];
+			user.scheduledTask.forEach((task) => {
+				if(task.mailInfo.scheduledTime.getTime() > curr.getTime()){
+					tasks.push(task)
+				}else{
+					user.history.push(task);
+				}
+			})
+			user.scheduledTask = tasks;
+			user.save();
+			res.render('index', {username: user.firstname || user.googleId, tasks: user.scheduledTask});
 		});
 	}else{
 		res.redirect('/login');
@@ -203,72 +216,133 @@ app.get('/mailScreen', (req, res) => {
 app.post('/mailScreen', (req, res) => {
 
 	//'YYYY MM DD HH mm ss SSS'
-	var dateTo = new Date(req.body.scheduleStartTime);
-	var mailInfo = {
-		from: req.session.passport.user.username,
-		to: req.body.receiverEmail,
-		text: req.body.text,
-		pass: req.session.passport.user.password,
-		subject: '',
-	}
-
 	var user = req.session.passport.user;
-	console.log(user._id);
 	User.findOne({_id: user._id}, function(err, user) {
-		user.outbox.push(mailInfo);
-		user.save();
-	});
 
-	var interval = req.body.interval;
-	var cronStringStart=date.format(dateTo, 'ss mm HH DD MM *');
-	console.log(dateTo);
-	
-
-	if(interval.localeCompare('once')==0){
-		//Send mail once
-		User.findOne({_id: user._id}, function(err, user) {
-			if(!user){
+			if(!user) {
 				res.redirect('/signup');
-			}else{
-				var task = {
-					mailInfo: mailInfo,
-					task: mail.schedule(cronStringStart, mailInfo),
-				}
-				user.scheduledTask.push(task);
-				user.save();
 			}
+
+			var dateTo = new Date(req.body.scheduleStartTime);
+			
+			var mailInfo = {
+				from: req.body.senderEmail,
+				to: req.body.receiverEmail,
+				text: req.body.text,
+				pass: req.body.senderPass,
+				subject: req.body.subject,
+				scheduledTime: dateTo,
+			}
+
+			var task = {
+				task_id: uuidv4(),
+				mailInfo: mailInfo,
+			}
+
+			var interval = req.body.interval;
+			var cronStringStart=date.format(dateTo, 'ss mm HH DD MM *');	
+			if(interval.localeCompare('once')==0){
+				//Send mail once
+				task.mailInfo.recurrence = 'Once';
+				mail.schedule(dateTo, mailInfo);
+			}else{
+				//Recur mail after specified time
+				var cronStringInterval; 
+				if(interval.localeCompare('every-minute')==0){
+					task.mailInfo.recurrence = 'Every minute';
+					cronStringInterval = '* * * * *';
+				}else if(interval.localeCompare('every-week')==0){
+					task.mailInfo.recurrence = 'Every week';
+					cronStringInterval = '* * * * 1';
+				}else if(interval.localeCompare('every-month')==0){
+					task.mailInfo.recurrence = 'Every month';
+					cronStringInterval = '* * 1 * *';
+				}else if(interval.localeCompare('every-year')==0){
+					task.mailInfo.recurrence = 'Every year';
+					cronStringInterval = '* * * 1 *';
+				}
+
+				mail.recur(dateTo, cronStringInterval, mailInfo);					
+			}
+			task.mailInfo.pass = '#';
+			user.scheduledTask.push(task);
+			user.save();
+
+	}).then( () => {
+			res.redirect('/');
+		}
+	);
+
+})
+
+app.get('/history', function(req, res) {
+	if(req.session.loggedIn){
+		User.findOne({_id: req.session.passport.user._id}, function(err, user) {
+			if(!user){
+				res.render('/');
+			}
+			var curr = new Date();
+			var tasks = [];
+			user.scheduledTask.forEach((task) => {
+				if(task.mailInfo.scheduledTime.getTime() > curr.getTime()){
+					tasks.push(task)
+				}else{
+					user.history.push(task);
+				}
+			})
+			user.scheduledTask = tasks;
+			user.save();
+			res.render('history', {username: user.username || user.googleId, tasks: user.history});
 		});
 	}else{
-		//Recur mail after specified time
-		var cronStringInterval; 
-		dateTo.setTime(dateTo.getTime() + (30*60*1000));
-		
-		var cronStringEnd = date.format(dateTo, 'ss mm HH DD MM *');
-
-		if(interval.localeCompare('every-minute')==0){
-			cronStringInterval = '* * * * *';
-		}else if(interval.localeCompare('every-week')==0){
-			cronStringInterval = '* * * * 1';
-		}else if(interval.localeCompare('every-month')==0){
-			cronStringInterval = '* * 1 * *';
-		}else if(interval.localeCompare('every-year')==0){
-			cronStringInterval = '* * * 1 *';
-		}
-		User.findOne({_id: user._id}, function(err, user) {
-			if(!user){
-				res.redirect('/signup');
-			}else{
-				var task = {
-					mailInfo: mailInfo,
-					task: mail.recur(cronStringStart, cronStringInterval, cronStringEnd, mailInfo),
-				}
-				user.recurTask.push(task);
-				user.save();
-			}
-		});
+		res.redirect('/login');
 	}
+})
 
-	res.redirect('/mailScreen');
+/*
+const UserSchema = new mongoose.Schema({
+	username: String,
+	googleId: String,
+	password: String,
+	outbox: [],
+	scheduledTask: [],
+});
+*/
+app.get("/delete/:task_id", function(req, res){
+	User.findOne({_id: req.session.passport.user._id}, function(err, user) {
+		var index = user.scheduledTask.findIndex((task) => {
+			return task.task_id == req.params.task_id;
+		})
+		user.scheduledTask.splice(index, 1);
+		user.save();
+	}).then(() => {
+		res.redirect('/');
+	});
+})
+
+app.get("/delete/history/:task_id", function(req, res){
+	User.findOne({_id: req.session.passport.user._id}, function(err, user) {
+		var index = user.history.findIndex((task) => {
+			return task.task_id == req.params.task_id;
+		})
+		user.history.splice(index, 1);
+		user.save();
+	}).then(() => {
+		res.redirect('/history');
+	});
+})
+
+app.get('/askForName', function(req, res){
+	res.render('askForName');
+})
+
+app.post('/askForName', function(req, res){
+	User.findOne({_id: req.session.passport.user._id}, function(err, user) {
+		user.firstname=req.body.name;
+		user.save();
+	}).then(() => {
+		res.redirect('/');
+	});
 })
 
 let port = process.env.PORT || 3000;

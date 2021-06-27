@@ -1,64 +1,47 @@
 const nodemailer = require('nodemailer');
-const cron = require('node-cron');
+const schedule = require('node-schedule');
 
-function recurMail(cronStringStart, cronStringInterval, cronStringEnd, mailInfo){
-	scheduleMail(cronStringStart, mailInfo);
-	var recurTask = cron.schedule(cronStringInterval, () => {
-		sendMail(mailInfo);
-	},{
-		scheduled: false
+
+function recurMail(startTime, cronStringInterval, mailInfo){
+	scheduleMail(startTime, mailInfo);
+	schedule.scheduleJob(startTime, function(){
+		schedule.scheduleJob(cronStringInterval, function(){
+			sendMail(mailInfo);
+		})
 	});
-
-	cron.schedule(cronStringStart, () => {
-		recurTask.start();
-	},{
-		scheduled: true,
-		timezone: 'Asia/Colombo',
-	})
-
-	cron.schedule(cronStringEnd, () => {
-		recurTask.stop();
-	},{
-		scheduled: true,
-		timezone: 'Asia/Colombo',
-	})
-	return recurTask;
 }
 
-function scheduleMail(cronString, mailInfo){
-	var task = cron.schedule(cronString, () => {
+function scheduleMail(startTime, mailInfo){
+	const job = schedule.scheduleJob(startTime, function(){
 		sendMail(mailInfo);
-	},{
-		scheduled: true,
-		timezone: 'Asia/Colombo',
-	});
-	return task;
+	})
+	console.log(schedule.scheduledJobs);
 }
 
 function sendMail(mailInfo){
-	// console.log('hi');
-	let transporter = nodemailer.createTransport({
-		service: 'Gmail',
-		auth: {
-			user: mailInfo.from,
-			pass: mailInfo.pass
-		}
-	});
+	console.log('hi');
+	// let transporter = nodemailer.createTransport({
+	// 	service: 'Gmail',
+	// 	auth: {
+	// 		user: mailInfo.from,
+	// 		pass: mailInfo.pass
+	// 	}
+	// });
 
-	let mailOptions = {
-		from: mailInfo.from,
-		to: mailInfo.to,
-		subject: mailInfo.subject,
-		text: mailInfo.text,
-	};
+	// let mailOptions = {
+	// 	from: mailInfo.from,
+	// 	to: mailInfo.to,
+	// 	subject: mailInfo.subject,
+	// 	text: mailInfo.text,
+	// };
 
-	transporter.sendMail(mailOptions, (error, info) => {
-		if(error){
-			console.log(error);
-		}else{
-			console.log('Email send: '+info.response);
-		}
-	});
+	// transporter.sendMail(mailOptions, (error, info) => {
+	// 	if(error){
+	// 		console.log(error);
+	// 	}else{
+	// 		console.log('Email send: '+info.response);
+	// 	}
+	// });
 }
 
 module.exports = {

@@ -26,7 +26,7 @@
 
 						<div>
 							<ul class="nav nav-pills nav-stacked">
-								<li style="display:block;"><a href="/history"><i class="fa fa-mail-forward"></i> Sent  Mail</a></li>
+								<li style="display:block;"><a href="/"><i class="fa fa-pencil-square-o"></i>Scheduled  Mail</a></li>
 							</ul>
 						</div>
 					</div>
@@ -41,8 +41,8 @@
 							<table class="table">
 								<thead>
 									<th class="name">To</th>
-									<th class="name">Subject</th>
-									<th class="name">Scheduled Time</th>
+									<th class="name">Sub</th>
+									<th class="name">Sent At</th>
 									<th class="name">Interval</th>
 								</thead>
 								<tbody>
@@ -51,19 +51,31 @@
 									<tr>
 										<td class="name"><a href="#"><%= task.mailInfo.to %></a></td>
 										<td class="subject"><a href="#"><%= task.mailInfo.subject %></a></td>
-										<td class="time"><%= date.getDate() +'/' + date.getMonth() + '/' + date.getFullYear() + " at " + date.getHours() + ':' + date.getMinutes() %></td>
+										<td class="time"><%= date.getDate() +'/' + date.getMonth() + '/' + date.getFullYear() + " " + date.getHours() + ':' + date.getMinutes() %></td>
 										<td class="interval"><a href="#"><%= task.mailInfo.recurrence %></a></td>
-										<td><a href="/delete/<%=task.task_id%>"><i class="fa fa-trash"></i></a></td>
+										<td><a href="/delete/history/<%=task.task_id%>"><i class="fa fa-trash"></i></a></td>
 									</tr>
 								<% }) %>
 							</tbody></table>
 						</div>
-					
+
+						<ul class="pagination">
+							<li class="disabled"><a href="#">«</a></li>
+							<li class="active"><a href="#">1</a></li>
+							<li><a href="#">2</a></li>
+							<li><a href="#">3</a></li>
+							<li><a href="#">4</a></li>
+							<li><a href="#">5</a></li>
+							<li><a href="#">»</a></li>
+						</ul>						
 					</div>
 					<!-- END INBOX CONTENT -->
+					
+					<!-- END COMPOSE MESSAGE -->
 				</div>
 			</div>
 		</div>
 	</div>
+	<!-- END INBOX -->
 </div>
 </div>
