@@ -60,7 +60,7 @@
 									<tr>
 										<td class="name"><a href="#"><%= task.mailInfo.to %></a></td>
 										<td class="subject"><a href="#"><%= task.mailInfo.subject %></a></td>
-										<td class="time"><%= date.getDate() +'/' + date.getMonth() + '/' + date.getFullYear() + " " + date.getHours() + ':' + date.getMinutes() %></td>
+										<td class="time"><%= date.getDate() +'/' + (date.getMonth() + 1) + '/' + date.getFullYear() + " " + date.getHours() + ':' + date.getMinutes() %></td>
 										<td class="interval"><a href="#"><%= task.mailInfo.recurrence %></a></td>
 										<td><a href="/delete/history/<%=task.task_id%>"><i class="fa fa-trash"></i></a></td>
 									</tr>
