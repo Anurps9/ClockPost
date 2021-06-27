@@ -10,7 +10,7 @@
 6. Mails can be send to multiple recepients.
 7. App deployed on heroku
 
-*   Deployment link - <a href="https://serene-brook-91484.herokuapp.com/mailScreen">Here</a>
+*   Deployment link - <a href="https://serene-brook-91484.herokuapp.com/login">Here</a>
 
 
  
