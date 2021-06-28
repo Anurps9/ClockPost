@@ -8,7 +8,7 @@
 2. Create/edit mail.
 3. List of scheduled mails and mails sent in past.
 4. Schedule mail.
-5. Recurring mails with options to send at intervals of one minute, one week, one month or one year.
+5. Recurring mails with options to send at intervals of 30 seconds, one week, one month or one year.
 6. CC allowed.
 
 Deployment link - <a href="https://serene-brook-91484.herokuapp.com/login">Here</a>
@@ -17,10 +17,12 @@ Deployment link - <a href="https://serene-brook-91484.herokuapp.com/login">Here<
 1. Fork and clone the repository.
 2. Use command 'npm i' in the root directory to install all dependencies.
 3. Make a .env file in the root directory and put the following variables in it:<br>
-	i) clientID: Obtained from Google Developer console.<br>
-	ii) clientSecret: Also obtained from Google Developer console.<br>
-	iii) sesseion_secret: A random string to be use as session secret for 'express-session' package.<br>
-	iv) db_url: A MongoDB connection URL.<br>
+<ul>
+	clientID: Obtained from Google Developer console.<br>
+	clientSecret: Also obtained from Google Developer console.<br>
+	sesseion_secret: A random string to be use as session secret for 'express-session' package.<br>
+	db_url: A MongoDB connection URL.<br>
+</ul>
 4. Run the app using command 'node app.js' in the root directory.
 5. In case of deployment, you may need to set the 'TZ' config variable to your respective timezone. 
 
@@ -38,7 +40,7 @@ Now, you are ready to use the app. Go on!
 3. Click on 'Sent Mail' to see all the mails that have been delivered from your account in the past.
 4. Click on 'New message' to compose a new mail.
 5. Input your Gmail ID, password for Gmail ID, the recipient address, CC (if required).
-6. Select the frequency of mails (once, every minute, every week, every month or every year).
+6. Select the frequency of mails (once, every 30s, every week, every month or every year).
 7. Select the start time at which mails should start to be delivered. Be sure to select a time in the future.
 8. Now, select the span for which mails should be continuosly delivered. If you select span 5 minutes and delivery frequency 'every minute', then 5 mails will be delivered at an interval of one minute.
 9. Hit 'Send' and that's it!
