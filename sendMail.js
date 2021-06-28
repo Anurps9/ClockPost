@@ -21,6 +21,9 @@ function sendMail(mailInfo){
 		auth: {
 			user: mailInfo.from,
 			pass: mailInfo.pass,
+		},
+		tls: {
+			rejectUnauthorized: false,
 		}
 	});
 
