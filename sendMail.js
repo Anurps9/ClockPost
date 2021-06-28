@@ -3,6 +3,7 @@ const schedule = require('node-schedule');
 
 
 function recurMail(startTime, cronStringInterval, endTime, mailInfo){
+	scheduleMail(startTime, mailInfo);
 	schedule.scheduleJob({start: startTime, end: endTime, rule: cronStringInterval}, function(){
 		sendMail(mailInfo);
 	});
@@ -31,13 +32,13 @@ function sendMail(mailInfo){
 		text: mailInfo.text,
 	};
 
-	transporter.sendMail(mailOptions, (error, info) => {
-		if(error){
-			console.log(error);
-		}else{
-			console.log('Email send: '+info.response);
-		}
-	});
+	// transporter.sendMail(mailOptions, (error, info) => {
+	// 	if(error){
+	// 		console.log(error);
+	// 	}else{
+	// 		console.log('Email send: '+info.response);
+	// 	}
+	// });
 }
 
 module.exports = {

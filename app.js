@@ -152,7 +152,8 @@ app.get('/', (req, res) => {
 			var curr = new Date();
 			var tasks = [];
 			user.scheduledTask.forEach((task) => {
-				if(task.mailInfo.scheduledTime.getTime() > curr.getTime()){
+				console.log(task.mailInfo.endsAt.getTime(), curr.getTime());
+				if(task.mailInfo.endsAt.getTime() > curr.getTime()){
 					tasks.push(task)
 				}else{
 					user.history.push(task);
@@ -225,18 +226,26 @@ app.post('/mailScreen', (req, res) => {
 			var dateTo = new Date(req.body.scheduleStartTime);
 			var dateEnd = new Date(dateTo);
 
-			var timeScale = req.body.timenumber;
-			var timeUnit = req.body.timeunit;
+			console.log(dateEnd);
 
-			if(timeUnit.localeCompare('minute')==0){
+			var interval = req.body.interval;
+			var timeScale = parseInt(req.body.timenumber);
+			timeScale--;
+			var timeUnit = req.body.timeunit;
+			console.log(timeUnit);
+
+			if(interval.localeCompare('once')==0){
+			}else if(timeUnit.localeCompare('minute')==0){
 				dateEnd.setMinutes(dateEnd.getMinutes()+timeScale);
 			}else if(timeUnit.localeCompare('day')===0){
 				dateEnd.setDate(dateEnd.getDate()+timeScale);
 			}else if(timeUnit.localeCompare('month')==0){
 				dateEnd.setMonth(dateEnd.getMonth()+timeScale);
 			}else if(timeUnit.localeCompare('year')==0){
-				dateEnd.setYear(dateEnd.getYear()+timeScale);
+				dateEnd.setFullYear(dateEnd.getFullYear()+timeScale);
 			}
+
+			console.log(dateEnd);
 
 			var mailInfo = {
 				from: req.body.senderEmail,
@@ -248,8 +257,6 @@ app.post('/mailScreen', (req, res) => {
 				scheduledTime: dateTo,
 				endsAt: dateEnd, 
 			}
-
-			console.log(dateTo, dateEnd);
 
 			var tmp = {
 				from: mailInfo.from,
@@ -265,7 +272,6 @@ app.post('/mailScreen', (req, res) => {
 				mailInfo: mailInfo,
 			}
 
-			var interval = req.body.interval;
 			if(interval.localeCompare('once')==0){
 				//Send mail once
 				task.mailInfo.recurrence = 'Once';
@@ -289,6 +295,7 @@ app.post('/mailScreen', (req, res) => {
 				mail.recur(dateTo, cronStringInterval, dateEnd, tmp);					
 			}
 			task.mailInfo.pass = '#';
+			console.log(task);
 			user.scheduledTask.push(task);
 			user.save();
 
@@ -325,7 +332,7 @@ app.get('/history', function(req, res) {
 			var curr = new Date();
 			var tasks = [];
 			user.scheduledTask.forEach((task) => {
-				if(task.mailInfo.scheduledTime.getTime() > curr.getTime()){
+				if(task.mailInfo.endsAt.getTime() > curr.getTime()){
 					tasks.push(task);
 				}else{
 					user.history.push(task);

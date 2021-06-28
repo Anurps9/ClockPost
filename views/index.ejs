@@ -58,7 +58,7 @@
 								<tbody>
 								<% tasks.forEach((task) => { %>
 									<% var date = task.mailInfo.scheduledTime %>
-									<% var endDate = task.mailInfo.scheduledTime %>
+									<% var endDate = task.mailInfo.endsAt %>
 									<tr>
 										<td class="name"><a href="#"><%= task.mailInfo.to %></a></td>
 										<td class="subject"><a href="/read/<%=task.task_id%>"><%= task.mailInfo.subject %></a></td>
