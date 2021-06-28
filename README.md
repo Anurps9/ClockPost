@@ -16,20 +16,21 @@ Deployment link - <a href="https://serene-brook-91484.herokuapp.com/login">Here<
 ## Build Instuctions
 1. Fork and clone the repository.
 2. Use command 'npm i' in the root directory to install all dependencies.
-3. Make a .env file in the root directory and put the following variables in it:
-	i) clientID: Obtained from Google Developer console.
-	ii) clientSecret: Also obtained from Google Developer console.
-	iii) sesseion_secret: A random string to be use as session secret for 'express-session' package.
-	iv) db_url: A MongoDB connection URL.
+3. Make a .env file in the root directory and put the following variables in it:<br>
+	i) clientID: Obtained from Google Developer console.<br>
+	ii) clientSecret: Also obtained from Google Developer console.<br>
+	iii) sesseion_secret: A random string to be use as session secret for 'express-session' package.<br>
+	iv) db_url: A MongoDB connection URL.<br>
 4. Run the app using command 'node app.js' in the root directory.
 5. In case of deployment, you may need to set the 'TZ' config variable to your respective timezone. 
 
 ## Use
 
-Note: Before being able to use, the app you need to make two changes to your Gmail account:
-First, turn on 'Less secure app' feature.
-Second, allow 'Display Unlock Captcha'.
-You can do Google search for these terms to find the page where you can tweak these settings.
+Note: Before being able to use, the app you need to make two changes to your Gmail account:<br>
+First, turn on 'Less secure app' feature.<br>
+Second, allow 'Display Unlock Captcha'.<br>
+You can do Google search for these terms to find the page where you can tweak these settings<br>.
+<br>
 Now, you are ready to use the app. Go on!
 
 1. Login using you Gmail account or in case you want to use username-password strategy then Signup first.
