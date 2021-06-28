@@ -17,7 +17,9 @@ function scheduleMail(startTime, mailInfo){
 
 function sendMail(mailInfo){
 	let transporter = nodemailer.createTransport({
-		service: 'Gmail',
+		host: 'smtp.gmail.com',
+		port: 465,
+		secure: true,
 		auth: {
 			user: mailInfo.from,
 			pass: mailInfo.pass,
