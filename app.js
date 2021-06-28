@@ -51,6 +51,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('Connected to database');
 });
+
 const UserSchema = new mongoose.Schema({
 	firstname: String, 
 	lastname: String,
@@ -62,7 +63,6 @@ const UserSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', UserSchema);
-
 passport.use(new GoogleStrategy({
     clientID: process.env.clientID,
     clientSecret: process.env.clientSecret,
@@ -228,10 +228,8 @@ app.post('/mailScreen', (req, res) => {
 			var timeScale = req.body.timenumber;
 			var timeUnit = req.body.timeunit;
 
-			console.log(timeScale, timeUnit);
-
 			if(timeUnit.localeCompare('minute')==0){
-				dateEnd.setSeconds(dateEnd.getSeconds()+timeScale);
+				dateEnd.setMinutes(dateEnd.getMinutes()+timeScale);
 			}else if(timeUnit.localeCompare('day')===0){
 				dateEnd.setDate(dateEnd.getDate()+timeScale);
 			}else if(timeUnit.localeCompare('month')==0){
@@ -368,5 +366,3 @@ let port = process.env.PORT || 3000;
 app.listen(port, () => {
 	console.log('server start at port '+port);
 })
-
-
