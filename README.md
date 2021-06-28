@@ -18,10 +18,10 @@ Deployment link - <a href="https://serene-brook-91484.herokuapp.com/login">Here<
 2. Use command 'npm i' in the root directory to install all dependencies.
 3. Make a .env file in the root directory and put the following variables in it:<br>
 <ul>
-	clientID: Obtained from Google Developer console.<br>
-	clientSecret: Also obtained from Google Developer console.<br>
-	sesseion_secret: A random string to be use as session secret for 'express-session' package.<br>
-	db_url: A MongoDB connection URL.<br>
+	<li>clientID: Obtained from Google Developer console.</li>
+	<li>clientSecret: Also obtained from Google Developer console.</li>
+	<li>sesseion_secret: A random string to be use as session secret for 'express-session' package.</li>
+	<li>db_url: A MongoDB connection URL.</li>
 </ul>
 4. Run the app using command 'node app.js' in the root directory.
 5. In case of deployment, you may need to set the 'TZ' config variable to your respective timezone. 
