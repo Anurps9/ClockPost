@@ -51,16 +51,19 @@
 								<thead>
 									<th class="name">To</th>
 									<th class="name">Sub</th>
-									<th class="name">Sent At</th>
+									<th class="name">Started At</th>
+									<th class="name">Ended At</th>
 									<th class="name">Interval</th>
 								</thead>
 								<tbody>
 								<% tasks.forEach((task) => { %>
+									<% var endDate = task.mailInfo.endsAt %>
 									<% var date = task.mailInfo.scheduledTime %>
 									<tr>
 										<td class="name"><a href="#"><%= task.mailInfo.to %></a></td>
 										<td class="subject"><a href="#"><%= task.mailInfo.subject %></a></td>
-										<td class="time"><%= date.getDate() +'/' + (date.getMonth() + 1) + '/' + date.getFullYear() + " " + date.getHours() + ':' + date.getMinutes() %></td>
+										<td class="time"><%= date.getDate() +'/' + (date.getMonth()+1) + '/' + date.getFullYear() + " at " + date.getHours() + ':' + (date.getMinutes()<10 ? '0'+ date.getMinutes() : date.getMinutes()) %></td>
+										<td class="time"><%= endDate.getDate() +'/' + (endDate.getMonth()+1) + '/' + endDate.getFullYear() + " at " + endDate.getHours() + ':' + (endDate.getMinutes()<10 ? '0'+endDate.getMinutes() : endDate.getMinutes())%></td>
 										<td class="interval"><a href="#"><%= task.mailInfo.recurrence %></a></td>
 										<td><a href="/delete/history/<%=task.task_id%>"><i class="fa fa-trash"></i></a></td>
 									</tr>

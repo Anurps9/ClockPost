@@ -1,18 +1,29 @@
 const nodemailer = require('nodemailer');
 const schedule = require('node-schedule');
+const {v4: uuidv4} = require('uuid');
 
+function stop(ID){
+	schedule.scheduledJobs[ID].cancel();
+}
 
 function recurMail(startTime, cronStringInterval, endTime, mailInfo){
-	scheduleMail(startTime, mailInfo);
-	schedule.scheduleJob({start: startTime, end: endTime, rule: cronStringInterval}, function(){
+	var startID = uuidv4();
+	var recurID = uuidv4();
+	schedule.scheduleJob(startID, startTime, function(){
+		sendMail(mailInfo);
+	})
+	schedule.scheduleJob(recurID, {start: startTime, end: endTime, rule: cronStringInterval}, function(){
 		sendMail(mailInfo);
 	});
+	return {recurJob: recurID, startJob: startID};
 }
 
 function scheduleMail(startTime, mailInfo){
-	const job = schedule.scheduleJob(startTime, function(){
+	var startID = uuidv4();
+	schedule.scheduleJob(startID, startTime, function(){
 		sendMail(mailInfo);
-	})
+	});
+	return {recurJob: '', startJob: startID};
 }
 
 function sendMail(mailInfo){
@@ -47,6 +58,7 @@ function sendMail(mailInfo){
 }
 
 module.exports = {
+	stop: stop,
 	send: sendMail,
 	schedule: scheduleMail,
 	recur: recurMail,

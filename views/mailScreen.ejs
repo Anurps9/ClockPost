@@ -30,12 +30,14 @@
 						<div class="form-group">
 							<input name="receiverEmail" id="receiver-id" type="email" class="form-control" placeholder="* To:" required>
 						</div>
-						<ul id="rec-list" style="padding-left: 0; margin: 0;">
-							<input name="ccEmail" id="cc-id" type="email" class="form-control" placeholder="CC:">
-						</ul>
+						<div class="form-group">
+							<ul id="rec-list" style="padding-left: 0; margin: 0;">
+								<input name="ccEmail" id="cc-id" type="email" class="form-control" placeholder="CC:">
+							</ul>
+						</div>
 						<button id="add" class="btn btn-secondary">+</button>
 						<div class="form-group">
-							<input name="subject" id="subject" type="text" class="form-control" placeholder="Subject:">
+							<input name="subject" id="subject" type="text" class="form-control" placeholder="Subject:" autocomplete="off">
 						</div>
 						<div class="form-group">
 							<textarea name="text" id="email-text" class="form-control" placeholder="Enter your message...." style="height: 120px;"></textarea>
@@ -107,13 +109,13 @@
 
 	var curr = new Date();
 	var date = curr.getDate() < 10 ? '0' + curr.getDate() : ''+curr.getDate();
-	curr.setMonth(parseInt(curr.getMonth())+1);
+	curr.setMonth(curr.getMonth()+1);
 	var month = curr.getMonth()+1 < 10 ? '0' + curr.getMonth() : curr.getMonth();
 	var year = curr.getFullYear();
 	var hour = curr.getHours() < 10 ? '0' + curr.getHours() : curr.getHours();
 	var minute = curr.getMinutes() < 10 ? '0' + curr.getMinutes() : curr.getMinutes();
 
-	var htmlDate = year + '-' + (month) + '-' + date + 'T' + hour + ':' + minute;
+	var htmlDate = year + '-' + month + '-' + date + 'T' + hour + ':' + minute;
 	start.value = htmlDate;
 
 </script>

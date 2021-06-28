@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const mail = require('./sendMail.js');
 const path = require('path');
-const date = require('date-and-time');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -226,13 +225,10 @@ app.post('/mailScreen', (req, res) => {
 			var dateTo = new Date(req.body.scheduleStartTime);
 			var dateEnd = new Date(dateTo);
 
-			console.log(dateEnd);
-
 			var interval = req.body.interval;
 			var timeScale = parseInt(req.body.timenumber);
 			timeScale--;
 			var timeUnit = req.body.timeunit;
-			console.log(timeUnit);
 
 			if(interval.localeCompare('once')==0){
 			}else if(timeUnit.localeCompare('minute')==0){
@@ -244,8 +240,6 @@ app.post('/mailScreen', (req, res) => {
 			}else if(timeUnit.localeCompare('year')==0){
 				dateEnd.setFullYear(dateEnd.getFullYear()+timeScale);
 			}
-
-			console.log(dateEnd);
 
 			var mailInfo = {
 				from: req.body.senderEmail,
@@ -272,30 +266,32 @@ app.post('/mailScreen', (req, res) => {
 				mailInfo: mailInfo,
 			}
 
+			var jobTime;
 			if(interval.localeCompare('once')==0){
 				//Send mail once
 				task.mailInfo.recurrence = 'Once';
-				mail.schedule(dateTo, tmp);
+				jobTime = mail.schedule(dateTo, tmp);
 			}else{
 				//Recur mail after specified time
 				var cronStringInterval; 
 				if(interval.localeCompare('every-minute')==0){
 					task.mailInfo.recurrence = 'Every minute';
-					cronStringInterval = '* * * * *';
+					cronStringInterval = '*/30 * * * * *';
 				}else if(interval.localeCompare('every-week')==0){
 					task.mailInfo.recurrence = 'Every week';
-					cronStringInterval = '* * * * 1';
+					cronStringInterval = '* * * * */1';
 				}else if(interval.localeCompare('every-month')==0){
 					task.mailInfo.recurrence = 'Every month';
-					cronStringInterval = '* * 1 * *';
+					cronStringInterval = '* * */1 * *';
 				}else if(interval.localeCompare('every-year')==0){
 					task.mailInfo.recurrence = 'Every year';
-					cronStringInterval = '* * * 1 *';
+					cronStringInterval = '* * * */1 *';
 				}
-				mail.recur(dateTo, cronStringInterval, dateEnd, tmp);					
+				var jobTime = mail.recur(dateTo, cronStringInterval, dateEnd, tmp);	
 			}
+			task.recurJob = jobTime.recurJob;
+			task.startJob = jobTime.startJob;
 			task.mailInfo.pass = '#';
-			console.log(task);
 			user.scheduledTask.push(task);
 			user.save();
 
@@ -309,14 +305,12 @@ app.post('/mailScreen', (req, res) => {
 app.get("/read/:task_id", (req, res) => {
 	User.findOne({_id: req.session.passport.user._id}, function(err, user) {
 		user.scheduledTask.forEach((task) => {
-			if(task.task_id == 
-				req.params.task_id){
+			if(task.task_id == req.params.task_id){
 				res.render('read', {mail: task.mailInfo.text});
 			}
 		})
 		user.history.forEach((task) => {
-			if(task.task_id == 
-				req.params.task_id){
+			if(task.task_id == req.params.task_id){
 				res.render('read', {mail: task.mailInfo.text});
 			}
 		})
@@ -352,6 +346,20 @@ app.get("/delete/:task_id", function(req, res){
 		var index = user.scheduledTask.findIndex((task) => {
 			return task.task_id == req.params.task_id;
 		})
+
+		var task = user.scheduledTask[index];
+		if(task.mailInfo.recurrence.localeCompare('Once')==0){
+			if(task.mailInfo.scheduledTime > new Date()){
+				mail.stop(task.startJob);
+			}
+		}else{
+			if(task.mailInfo.scheduledTime > new Date()){
+				mail.stop(task.startJob);
+				mail.stop(task.recurJob);
+			}else if(task.mailInfo.endsAt > new Date()){
+				mail.stop(task.recurJob);
+			}
+		}
 		user.scheduledTask.splice(index, 1);
 		user.save();
 	}).then(() => {
