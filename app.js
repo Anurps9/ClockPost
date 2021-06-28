@@ -249,6 +249,8 @@ app.post('/mailScreen', (req, res) => {
 				endsAt: dateEnd, 
 			}
 
+			console.log(dateTo, dateEnd);
+
 			var tmp = {
 				from: mailInfo.from,
 				to: mailInfo.to,
