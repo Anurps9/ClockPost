@@ -19,13 +19,14 @@
 				<form action="/mailScreen" method="post">
 					<div class="modal-body">
 						<div class="form-group">
-							<input name="senderEmail" id="sender-id" type="email" class="form-control" placeholder="Your Gmail Id:">
+							<input name="senderEmail" id="sender-id" type="email" class="form-control" placeholder="* Your Gmail Id:" required>
 						</div>
 						<div class="form-group">
-							<input name="senderPass" id="sender-pass" type="password" class="form-control" placeholder="Your Gmail Password:">
+							<input name="senderPass" id="sender-pass" type="password" class="form-control" placeholder="* Your Gmail Password:" required>
+							<div style="font-size: 12px;"> <span style="color: red;">*</span> This password is not stored anywhere and is used to send one mail only.</div>
 						</div>
 						<div class="form-group">
-							<input name="receiverEmail" id="receiver-id" type="email" class="form-control" placeholder="To:">
+							<input name="receiverEmail" id="receiver-id" type="email" class="form-control" placeholder="* To:" required>
 						</div>
 						<ul id="rec-list" style="padding-left: 0; margin: 0;">
 							<input name="ccEmail" id="cc-id" type="email" class="form-control" placeholder="CC:">
@@ -45,9 +46,9 @@
 								<option value="every-month">Every month</option>
 								<option value="every-year">Every year</option>
 							</select>
-							<input name="scheduleStartTime" type="datetime-local" id="schedule-start-time">
+							<input name="scheduleStartTime" type="datetime-local" id="schedule-start-time" required>
 							<h5 class="modal-title"><i class="fa fa-envelope"></i> Specify below, span for which messages should be sent:</h5>
-							<input name="timenumber" type="number" onkeypress="return event.charCode >= 48" min="1">
+							<input name="timenumber" type="number" onkeypress="return event.charCode >= 48" min="1" placeholder="1">
 							<select name="timeunit" id="time-unit">
 								<option value="minute">minutes</option>
 								<option value="day">days</option>
