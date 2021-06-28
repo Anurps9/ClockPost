@@ -17,10 +17,10 @@
 		<div class="grid email">
 			<div class="grid-body">
 				<div class="row">
-					<div class="col-md-1">
+					<div class="col">
 						<h2 class="grid-title"><i class="fa fa-inbox"></i> Inbox</h2>
 					</div>
-					<div class="col-md-1">
+					<div class="col" style="text-align: right;">
 						<form action="/logout" method="POST">
 							<button class="btn btn-secondary" type="submit">Logout</button>
 						</form>
@@ -29,7 +29,7 @@
 				<div class="row">
 					<!-- BEGIN INBOX MENU -->
 					<div class="col-md-3">
-						<h6 class="grid-title">Signed in as: <%= username %></h6>
+						<h6 class="grid-title">Your ID: <%= username %></h6>
                         <a class="btn btn-block btn-primary"  href="/mailScreen"><i class="fa fa-pencil"></i>&nbsp;&nbsp;NEW MESSAGE</a>
 						<hr>
 
@@ -66,17 +66,7 @@
 									</tr>
 								<% }) %>
 							</tbody></table>
-						</div>
-
-						<ul class="pagination">
-							<li class="disabled"><a href="#">«</a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-							<li><a href="#">5</a></li>
-							<li><a href="#">»</a></li>
-						</ul>						
+						</div>						
 					</div>
 					<!-- END INBOX CONTENT -->
 					

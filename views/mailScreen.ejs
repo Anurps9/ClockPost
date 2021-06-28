@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Mail Screen</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 	<link rel="stylesheet" href="css/mail.css">
+	<title>Mail Screen</title>
 </head>
 
-<body class="a" style= "width: 60%; height: 100%;">
-<div class="modal fade" id="compose-modal" tabindex="-1" role="dialog" aria-hidden="true">
+<body class="a" style= "width: 100%; height: 100%;">
 	<div class="modal-wrapper">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header bg-blue">
-					<button type="button" id="close-button" data-dismiss="modal" aria-hidden="true">×</button>
-					<h4 class="modal-title"><i class="fa fa-envelope"></i> Compose New Message</h4>
+					<h4 style="margin-left: 0;" class="modal-title"><i class="fa fa-envelope"></i> Compose New Message</h4>
+					<button style="font-size: 15px;" class="btn btn-secondary" type="button" id="close-button" data-dismiss="modal" aria-hidden="true">x</button>
 				</div>
 				<form action="/mailScreen" method="post">
 					<div class="modal-body">
@@ -24,7 +23,9 @@
 						</div>
 						<div class="form-group">
 							<input name="senderPass" id="sender-pass" type="password" class="form-control" placeholder="* Your Gmail Password:" required>
-							<div style="font-size: 12px;"> <span style="color: red;">*</span> This password is not stored anywhere and is used to send one mail only.</div>
+							<small style="font-size: 12px;" id="passwordHelpBlock" class="form-text text-muted">
+								<span style="color: red;">*</span> This password is not stored anywhere and is used to send one mail only.
+							</small>
 						</div>
 						<div class="form-group">
 							<input name="receiverEmail" id="receiver-id" type="email" class="form-control" placeholder="* To:" required>
@@ -39,38 +40,50 @@
 						<div class="form-group">
 							<textarea name="text" id="email-text" class="form-control" placeholder="Enter your message...." style="height: 120px;"></textarea>
 						</div>
-						<div class="form-group">
-							<select name="interval" id="email-interval">
-								<option value="once">Once</option>
-								<option value="every-minute">Every minute</option>
-								<option value="every-week">Every week</option>
-								<option value="every-month">Every month</option>
-								<option value="every-year">Every year</option>
-							</select>
-							<input name="scheduleStartTime" type="datetime-local" id="schedule-start-time" required>
-							<h5 class="modal-title"><i class="fa fa-envelope"></i> Specify below, span for which messages should be sent:</h5>
-							<input name="timenumber" type="number" onkeypress="return event.charCode >= 48" min="1" placeholder="1">
-							<select name="timeunit" id="time-unit">
-								<option value="minute">minutes</option>
-								<option value="day">days</option>
-								<option value="month">months</option>
-								<option value="year">years</option>
-							</select>
+						<div class="row">
+							<div class="col form-group">
+								<select class="form-control" name="interval" id="email-interval">
+									<option selected value="once">Once</option>
+									<option value="every-minute">Every minute</option>
+									<option value="every-week">Every week</option>
+									<option value="every-month">Every month</option>
+									<option value="every-year">Every year</option>
+								</select>
+							</div>
+							<div class="col form-group">
+								<input class="form-control" name="scheduleStartTime" type="datetime-local" id="schedule-start-time" required>
+							</div>
+						</div>
+						<small style="font-size: 12px;" class="form-text text-muted">Specify below, span for which messages should be sent:
+						</small>
+						<div class="row">
+							<div class="col form-group">
+								<input id="time-number" class="form-control" name="timenumber" type="number" onkeypress="return event.charCode >= 48" min="placeholder="0">
+							</div>
+							<div class="col form-group">
+								<select class="form-control form-control-sm" name="timeunit" id="time-unit">
+									<option selected value="minute">minutes</option>
+									<option value="day">days</option>
+									<option value="month">months</option>
+									<option value="year">years</option>
+								</select>
+							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button type="submit" class="btn btn-primary pull-right"><i class="fa fa-envelope"></i>Send Message</button>
+						<button type="submit" class="btn btn-primary pull-right"><i class="fa fa-envelope"></i>Send</button>
 					</div>
 				</form>
 			</div>
 		</div>
 	</div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 <script>
 
 	var recList = document.getElementById('rec-list');
 	var add = document.getElementById('add');
 	var close = document.getElementById('close-button');
+	var start = document.getElementById('schedule-start-time');
 
 	function createEmailInput(){
 		var input = document.createElement('input');
@@ -92,7 +105,16 @@
 		window.location.pathname = ('/');
 	}
 
+	var curr = new Date();
+	var date = curr.getDate() < 10 ? '0' + curr.getDate() : ''+curr.getDate();
+	curr.setMonth(parseInt(curr.getMonth())+1);
+	var month = curr.getMonth()+1 < 10 ? '0' + curr.getMonth() : curr.getMonth();
+	var year = curr.getFullYear();
+	var hour = curr.getHours() < 10 ? '0' + curr.getHours() : curr.getHours();
+	var minute = curr.getMinutes() < 10 ? '0' + curr.getMinutes() : curr.getMinutes();
 
+	var htmlDate = year + '-' + (month) + '-' + date + 'T' + hour + ':' + minute;
+	start.value = htmlDate;
 
 </script>
 </body>

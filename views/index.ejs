@@ -5,77 +5,79 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<link rel="stylesheet" href="">
 	<link rel="stylesheet" href="css/mail.css">
 	<title>Sent</title>
 </head>
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-<div class="container">
-<div class="row">
-	<!-- BEGIN INBOX -->
-	<div class="col-md-12">
-		<div class="grid email">
-			<div class="grid-body">
-				<div class="row">
-					<div class="col-md-1">
-						<h2 class="grid-title"><i class="fa fa-inbox"></i>Inbox</h2>
-					</div>
-					<div class="col-md-1">
-						<form action="/logout" method="POST">
-							<button class="btn btn-secondary" type="submit">Logout</button>
-						</form>
-					</div>
-				</div>
-				<div class="row">
-					<!-- BEGIN INBOX MENU -->
-					<div class="col-md-3">
-						<h6 class="grid-title">Signed in as: <%= username %></h6>
-                        <a class="btn btn-block btn-primary"  href="/mailScreen"><i class="fa fa-pencil"></i>&nbsp;&nbsp;NEW MESSAGE</a>
-						<hr>
 
-						<div>
-							<ul class="nav nav-pills nav-stacked">
-								<li style="display:block;"><a href="/history"><i class="fa fa-mail-forward"></i> Sent  Mail</a></li>
-							</ul>
+<body>
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+	<div class="container">
+	<div class="row">
+		<!-- BEGIN INBOX -->
+		<div class="col">
+			<div class="grid email">
+				<div class="grid-body">
+					<div class="row">
+						<div class="col">
+							<h2 class="grid-title"><i class="fa fa-inbox"></i> Inbox</h2>
+						</div>
+						<div class="col" style="text-align: right;">
+							<form action="/logout" method="POST">
+								<button class="btn btn-secondary" type="submit">Logout</button>
+							</form>
 						</div>
 					</div>
-					<!-- END INBOX MENU -->
-					
-					<!-- BEGIN INBOX CONTENT -->
-					<div class="col-md-9">
-						
-						<div class="padding"></div>
-						
-						<div class="table-responsive">
-							<table class="table">
-								<thead>
-									<th class="name">To</th>
-									<th class="name">Subject</th>
-									<th class="name">Scheduled Time</th>
-									<th class="name">Ends at</th>
-									<th class="name">Interval</th>
-								</thead>
-								<tbody>
-								<% tasks.forEach((task) => { %>
-									<% var date = task.mailInfo.scheduledTime %>
-									<% var endDate = task.mailInfo.endsAt %>
-									<tr>
-										<td class="name"><a href="#"><%= task.mailInfo.to %></a></td>
-										<td class="subject"><a href="/read/<%=task.task_id%>"><%= task.mailInfo.subject %></a></td>
-										<td class="time"><%= date.getDate() +'/' + (date.getMonth()+1) + '/' + date.getFullYear() + " at " + date.getHours() + ':' + date.getMinutes() %></td>
-										<td class="time"><%= endDate.getDate() +'/' + (endDate.getMonth()+1) + '/' + endDate.getFullYear() + " at " + endDate.getHours() + ':' + endDate.getMinutes() %></td>
-										<td class="interval"><a href="#"><%= task.mailInfo.recurrence %></a></td>
-										<td><a href="/delete/<%=task.task_id%>"><i class="fa fa-trash"></i></a></td>
-									</tr>
-								<% }) %>
-							</tbody></table>
+					<div class="row">
+						<!-- BEGIN INBOX MENU -->
+						<div class="col-md-3">
+							<h6 class="grid-title">Your ID: <%= username %></h6>
+	                        <a class="btn btn-block btn-primary"  href="/mailScreen"><i class="fa fa-pencil"></i>&nbsp;&nbsp;NEW MESSAGE</a>
+							<hr>
+
+							<div>
+								<ul class="nav nav-pills nav-stacked">
+									<li style="display:block;"><a href="/history"><i class="fa fa-mail-forward"></i> Sent  Mail</a></li>
+								</ul>
+							</div>
 						</div>
-					
+						<!-- END INBOX MENU -->
+						
+						<!-- BEGIN INBOX CONTENT -->
+						<div class="col-md-9">
+							
+							<div class="padding"></div>
+							
+							<div class="table-responsive">
+								<table class="table">
+									<thead>
+										<th class="name">To</th>
+										<th class="name">Subject</th>
+										<th class="name">Scheduled Time</th>
+										<th class="name">Ends at</th>
+										<th class="name">Interval</th>
+									</thead>
+									<tbody>
+									<% tasks.forEach((task) => { %>
+										<% var date = task.mailInfo.scheduledTime %>
+										<% var endDate = task.mailInfo.endsAt %>
+										<tr>
+											<td class="name"><a href="#"><%= task.mailInfo.to %></a></td>
+											<td class="subject"><a href="/read/<%=task.task_id%>"><%= task.mailInfo.subject %></a></td>
+											<td class="time"><%= date.getDate() +'/' + (date.getMonth()+1) + '/' + date.getFullYear() + " at " + date.getHours() + ':' + date.getMinutes() %></td>
+											<td class="time"><%= endDate.getDate() +'/' + (endDate.getMonth()+1) + '/' + endDate.getFullYear() + " at " + endDate.getHours() + ':' + endDate.getMinutes() %></td>
+											<td class="interval"><a href="#"><%= task.mailInfo.recurrence %></a></td>
+											<td><a href="/delete/<%=task.task_id%>"><i class="fa fa-trash"></i></a></td>
+										</tr>
+									<% }) %>
+								</tbody></table>
+							</div>
+						
+						</div>
+						<!-- END INBOX CONTENT -->
 					</div>
-					<!-- END INBOX CONTENT -->
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-</div>
+	</div>
+</body>
