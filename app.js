@@ -275,7 +275,7 @@ app.post('/mailScreen', (req, res) => {
 				//Recur mail after specified time
 				var cronStringInterval; 
 				if(interval.localeCompare('every-minute')==0){
-					task.mailInfo.recurrence = 'Every minute';
+					task.mailInfo.recurrence = 'Every 30s';
 					cronStringInterval = '*/30 * * * * *';
 				}else if(interval.localeCompare('every-week')==0){
 					task.mailInfo.recurrence = 'Every week';
