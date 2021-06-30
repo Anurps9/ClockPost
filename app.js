@@ -14,6 +14,7 @@ const flash = require('connect-flash');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const {v4: uuidv4} = require('uuid');
+const {convert} = require('html-to-text');
 
 if(process.env.NODE_ENV !== 'production'){
 	require('dotenv').config();
@@ -245,7 +246,8 @@ app.post('/mailScreen', (req, res) => {
 				from: req.body.senderEmail,
 				to: req.body.receiverEmail,
 				cc: req.body.ccEmail,
-				text: req.body.text,
+				text: convert(req.body.text, {wordwrap: 130}),
+				html: req.body.text,
 				pass: req.body.senderPass,
 				subject: req.body.subject,
 				scheduledTime: dateTo,
@@ -256,6 +258,7 @@ app.post('/mailScreen', (req, res) => {
 				from: mailInfo.from,
 				to: mailInfo.to,
 				cc: mailInfo.cc,
+				html: mailInfo.html,
 				text: mailInfo.text,
 				pass: mailInfo.pass,
 				subject: mailInfo.subject,

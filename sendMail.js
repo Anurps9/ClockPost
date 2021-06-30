@@ -46,6 +46,7 @@ function sendMail(mailInfo){
 		cc: mailInfo.cc,
 		subject: mailInfo.subject,
 		text: mailInfo.text,
+		html: mailInfo.html,
 	};
 
 	transporter.sendMail(mailOptions, (error, info) => {
