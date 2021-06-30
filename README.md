@@ -13,7 +13,7 @@
 6. CC allowed.<br>
 </ol>
 	
-Deployment link - <a href="https://serene-brook-91484.herokuapp.com/login"><br>Here</a><br>
+Deployment link - <a href="https://serene-brook-91484.herokuapp.com/login">Here</a><br>
 Look for how to <b>Use</b> before running the link.
 
 ## Build Instuctions
