@@ -15,6 +15,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const {v4: uuidv4} = require('uuid');
 const {convert} = require('html-to-text');
+const imageToBase64 = require('image-to-base64');
 
 if(process.env.NODE_ENV !== 'production'){
 	require('dotenv').config();
@@ -31,6 +32,7 @@ app.use(session({
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.json())
 
 app.set('view engine', 'ejs');
 
@@ -223,6 +225,7 @@ app.post('/mailScreen', (req, res) => {
 				res.redirect('/signup');
 			}
 
+
 			var dateTo = new Date(req.body.scheduleStartTime);
 			var dateEnd = new Date(dateTo);
 
@@ -252,6 +255,7 @@ app.post('/mailScreen', (req, res) => {
 				subject: req.body.subject,
 				scheduledTime: dateTo,
 				endsAt: dateEnd, 
+				attachments: req.body.baseUrlList,
 			}
 
 			var tmp = {
@@ -262,6 +266,7 @@ app.post('/mailScreen', (req, res) => {
 				text: mailInfo.text,
 				pass: mailInfo.pass,
 				subject: mailInfo.subject,
+				attachments: mailInfo.attachments,
 			}
 
 			var task = {

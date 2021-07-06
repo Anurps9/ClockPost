@@ -27,6 +27,7 @@ function scheduleMail(startTime, mailInfo){
 }
 
 function sendMail(mailInfo){
+	// console.log(mailInfo);
 	let transporter = nodemailer.createTransport({
 		host: 'smtp.gmail.com',
 		port: 465,
@@ -47,6 +48,7 @@ function sendMail(mailInfo){
 		subject: mailInfo.subject,
 		text: mailInfo.text,
 		html: mailInfo.html,
+	 attachments: mailInfo.attachments,
 	};
 
 	transporter.sendMail(mailOptions, (error, info) => {

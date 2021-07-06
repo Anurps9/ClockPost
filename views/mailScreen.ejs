@@ -22,7 +22,7 @@
 					<h4 style="margin-left: 0;" class="modal-title"><i class="fa fa-envelope"></i> Compose New Message</h4>
 					<button style="font-size: 15px;" class="btn btn-secondary" type="button" id="close-button" data-dismiss="modal" aria-hidden="true">x</button>
 				</div>
-				<form action="/mailScreen" method="post">
+				<form id="mail-form">
 					<div class="modal-body">
 						<div class="form-group">
 							<input name="senderEmail" id="sender-id" type="email" class="form-control" placeholder="* Your Gmail Id:" required>
@@ -48,6 +48,10 @@
 						<div class="form-group">
 							<textarea name="text" id="email-text" class="form-control" placeholder="Enter your message...." style="height: 120px;"></textarea>
 						</div>
+						<div class="form-group" style="font-size: 10px">
+							<input type="file" name="attachments" id="attachments" multiple>
+							<!-- <a href="#" id="file-select">Upload Attachments</a> -->
+						</div>
 						<div class="row">
 							<div class="col form-group">
 								<select class="form-control" name="interval" id="email-interval">
@@ -66,7 +70,7 @@
 						</small>
 						<div class="row">
 							<div class="col form-group">
-								<input id="time-number" class="form-control" name="timenumber" type="number" onkeypress="return event.charCode >= 48" min="placeholder="0">
+								<input id="time-number" class="form-control" name="timenumber" type="number" onkeypress="return event.charCode >= 48" min="0" placeholder="0">
 							</div>
 							<div class="col form-group">
 								<select class="form-control form-control-sm" name="timeunit" id="time-unit">
@@ -79,7 +83,7 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button type="submit" class="btn btn-primary pull-right"><i class="fa fa-envelope"></i>Send</button>
+						<input type="submit" id="submit-button" class="btn btn-primary pull-right" value="Send"><i class="fa fa-envelope"></i></input>
 					</div>
 				</form>
 			</div>
@@ -126,5 +130,53 @@
 	start.value = htmlDate;
 
 </script>
+
+<script>
+		//add attachments
+		var submit = document.getElementById('submit-button');
+		var attachmentList = document.getElementById('attachments');
+		var mailForm = document.getElementById('mail-form');
+
+		submit.onclick = function (e) {
+			e.preventDefault()
+			var formdata = new FormData(mailForm);
+			var list = formdata.getAll('attachments')
+			var toSend = {};
+			var baseUrlList = [];
+			console.log(list);
+			console.log(formdata);
+			if(list.length == 0){
+				callback();
+				return;
+			} 
+
+			list.forEach(function (file) {
+				var reader = new FileReader();
+				reader.readAsDataURL(file)
+				reader.onload = function() {
+					baseUrlList.push({path: reader.result})
+					if(baseUrlList.length === list.length){
+						callback();
+					}
+				}
+			})
+
+			function callback(){
+				toSend['baseUrlList'] = baseUrlList;
+				for(let pair of formdata.entries()){
+					if(pair[0].localeCompare('someFile')!=0) toSend[pair[0]] = pair[1];
+				}
+				console.log(toSend);
+				xhr = new XMLHttpRequest()
+				xhr.open("POST", '/mailScreen', true)
+				xhr.setRequestHeader('Content-Type', 'application/json')
+				xhr.send(JSON.stringify(toSend))
+			}
+
+
+		}
+	</script>
+
+
 </body>
 </html>
